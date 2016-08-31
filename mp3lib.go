@@ -14,7 +14,7 @@ import (
 
 
 // Library version.
-const Version = "0.6.0"
+const Version = "0.6.1"
 
 
 // Flag controlling the display of debugging information.
@@ -49,18 +49,18 @@ const (
 
 
 // Bit rates.
-var v1l1_br = []int{0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448}
-var v1l2_br = []int{0, 32, 48, 56,  64,  80,  96, 112, 128, 160, 192, 224, 256, 320, 384}
-var v1l3_br = []int{0, 32, 40, 48,  56,  64,  80,  96, 112, 128, 160, 192, 224, 256, 320}
-var v2l1_br = []int{0, 32, 48, 56,  64,  80,  96, 112, 128, 144, 160, 176, 192, 224, 256}
-var v2l2_br = []int{0,  8, 16, 24,  32,  40,  48,  56,  64,  80,  96, 112, 128, 144, 160}
-var v2l3_br = []int{0,  8, 16, 24,  32,  40,  48,  56,  64,  80,  96, 112, 128, 144, 160}
+var v1l1_br = []int{ 0,32,64,96,128,160,192,224,256,288,320,352,384,416,448 }
+var v1l2_br = []int{ 0,32,48,56, 64, 80, 96,112,128,160,192,224,256,320,384 }
+var v1l3_br = []int{ 0,32,40,48, 56, 64, 80, 96,112,128,160,192,224,256,320 }
+var v2l1_br = []int{ 0,32,48,56, 64, 80, 96,112,128,144,160,176,192,224,256 }
+var v2l2_br = []int{ 0, 8,16,24, 32, 40, 48, 56, 64, 80, 96,112,128,144,160 }
+var v2l3_br = []int{ 0, 8,16,24, 32, 40, 48, 56, 64, 80, 96,112,128,144,160 }
 
 
 // Sampling rates.
-var v1_sr  = []int{44100, 48000, 32000}
-var v2_sr  = []int{22050, 24000, 16000}
-var v25_sr = []int{11025, 12000,  8000}
+var v1_sr  = []int{ 44100, 48000, 32000 }
+var v2_sr  = []int{ 22050, 24000, 16000 }
+var v25_sr = []int{ 11025, 12000,  8000 }
 
 
 // MP3Frame represents an individual frame parsed from an MP3 stream.
@@ -95,9 +95,9 @@ type ID3v2Tag struct {
 }
 
 
-// NextFrame loads the next MP3 frame from the input stream.
-// Skips over ID3 tags and unrecognised/garbage data in the stream.
-// Returns nil when the stream has been exhausted.
+// NextFrame loads the next MP3 frame from the input stream. Skips over ID3
+// tags and unrecognised/garbage data in the stream. Returns nil when the
+// stream has been exhausted.
 func NextFrame(stream io.Reader) *MP3Frame {
     for {
         obj := NextObject(stream)
@@ -207,9 +207,9 @@ func NextObject(stream io.Reader) interface{} {
 }
 
 
-// parseHeader attempts to parse a slice of 4 bytes as a valid MP3 header.
-// The return value is a boolean indicating success. If the header is valid
-// its values are written into the supplied MP3Frame struct.
+// parseHeader attempts to parse a slice of 4 bytes as a valid MP3 header. The
+// return value is a boolean indicating success. If the header is valid its
+// values are written into the supplied MP3Frame struct.
 func parseHeader(header []byte, frame *MP3Frame) bool {
 
     // MPEG version. (2 bits)
@@ -390,9 +390,10 @@ func IsVbriHeader(frame *MP3Frame) bool {
 }
 
 
-// NewXingHeader creates an Xing VBR header frame. Frame attributes are copied from
-// the supplied template frame.
-func NewXingHeader(template *MP3Frame, totalFrames, totalBytes uint32) *MP3Frame {
+// NewXingHeader creates an Xing VBR header frame. Frame attributes are copied
+// from the supplied template frame.
+func NewXingHeader(
+    template *MP3Frame, totalFrames, totalBytes uint32) *MP3Frame {
 
     // Make a shallow copy of the template frame.
     xingFrame := *template
