@@ -14,7 +14,7 @@ import (
 
 
 // Library version.
-const Version = "0.6.1"
+const Version = "0.7.0"
 
 
 // Flag controlling the display of debugging information.
@@ -105,9 +105,28 @@ func NextFrame(stream io.Reader) *MP3Frame {
         case *MP3Frame:
             return obj
         case *ID3v1Tag:
-            debug("skipping ID3v1 tag")
+            debug("next frame: skipping ID3v1 tag")
         case *ID3v2Tag:
-            debug("skipping ID3v2 tag")
+            debug("next frame: skipping ID3v2 tag")
+        case nil:
+            return nil
+        }
+    }
+}
+
+
+// NextID3v2Tag loads the next ID3v2 tag from the input stream, skipping all
+// other data. Returns nil when the stream has been exhausted.
+func NextID3v2Tag(stream io.Reader) *ID3v2Tag {
+    for {
+        obj := NextObject(stream)
+        switch obj := obj.(type) {
+        case *MP3Frame:
+            debug("next ID3v2 tag: skipping MP3 frame")
+        case *ID3v1Tag:
+            debug("next ID3v2 tag: skipping ID3v1 tag")
+        case *ID3v2Tag:
+            return obj
         case nil:
             return nil
         }
@@ -176,7 +195,8 @@ func NextObject(stream io.Reader) interface{} {
             return tag
         }
 
-        // Check for a frame header, indicated by an 11-bit frame-sync sequence.
+        // Check for a frame header, indicated by an 11-bit frame-sync
+        // sequence.
         if buffer[0] == 0xFF && (buffer[1] & 0xE0) == 0xE0 {
 
             frame := &MP3Frame{}
@@ -324,10 +344,10 @@ func parseHeader(header []byte, frame *MP3Frame) bool {
     //
     // In practice we need to rearrange this formula to avoid rounding errors.
     //
-    // I can't find any definitive statement on whether this length is supposed
-    // to include the 4-byte header and the optional 2-byte CRC. Experimentation
-    // on mp3 files captured from the wild indicates that it includes the header
-    // at least.
+    // I can't find any definitive statement on whether this length is
+    // supposed to include the 4-byte header and the optional 2-byte CRC.
+    // Experimentation on mp3 files captured from the wild indicates that it
+    // includes the header at least.
     frame.FrameLength =
         (frame.SampleCount / 8) * frame.BitRate / frame.SamplingRate + padding
 
