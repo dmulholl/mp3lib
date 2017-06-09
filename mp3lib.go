@@ -1,5 +1,5 @@
 /*
-    Package mp3lib is a basic library for parsing MP3 files.
+    Package mp3lib is a simple library for parsing MP3 files.
 */
 package mp3lib
 
