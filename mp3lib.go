@@ -83,13 +83,13 @@ type MP3Frame struct {
 }
 
 
-// ID3v1Tag represents an ID3v1 tag.
+// ID3v1Tag represents an ID3v1 metadata tag.
 type ID3v1Tag struct {
     RawBytes []byte
 }
 
 
-// ID3v2Tag represents an ID3v2 tag.
+// ID3v2Tag represents an ID3v2 metadata tag.
 type ID3v2Tag struct {
     RawBytes []byte
 }
