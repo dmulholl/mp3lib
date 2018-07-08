@@ -14,7 +14,7 @@ import (
 
 
 // Library version.
-const Version = "0.7.0"
+const Version = "0.8.0"
 
 
 // Flag controlling the display of debugging information.
@@ -384,10 +384,14 @@ func IsXingHeader(frame *MP3Frame) bool {
 
     // The Xing header begins directly after the side information block. We
     // also need to allow 4 bytes for the frame header.
-    offset := 4 + getSideInfoSize(frame)
-    id := frame.RawBytes[offset:offset + 4]
+    size := getSideInfoSize(frame)
 
-    if bytes.Equal(id, []byte("Xing")) || bytes.Equal(id, []byte("Info")) {
+    if len(frame.RawBytes) < 4 + size + 4 {
+        return false
+    }
+
+    flag := frame.RawBytes[4 + size:4 + size + 4]
+    if bytes.Equal(flag, []byte("Xing")) || bytes.Equal(flag, []byte("Info")) {
         return true
     }
 
@@ -400,9 +404,12 @@ func IsVbriHeader(frame *MP3Frame) bool {
 
     // The VBRI header begins after a fixed 32-byte offset. We also need to
     // allow 4 bytes for the frame header.
-    id := frame.RawBytes[36:36 + 4]
+    if len(frame.RawBytes) < 4 + 32 + 4 {
+        return false
+    }
 
-    if bytes.Equal(id, []byte("VBRI")) {
+    flag := frame.RawBytes[4 + 32:4 + 32 + 4]
+    if bytes.Equal(flag, []byte("VBRI")) {
         return true
     }
 
@@ -412,8 +419,7 @@ func IsVbriHeader(frame *MP3Frame) bool {
 
 // NewXingHeader creates an Xing VBR header frame. Frame attributes are copied
 // from the supplied template frame.
-func NewXingHeader(
-    template *MP3Frame, totalFrames, totalBytes uint32) *MP3Frame {
+func NewXingHeader(template *MP3Frame, totalFrames, totalBytes uint32) *MP3Frame {
 
     // Make a shallow copy of the template frame.
     xingFrame := *template
