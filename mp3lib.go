@@ -14,7 +14,7 @@ import (
 
 
 // Library version.
-const Version = "0.8.0"
+const Version = "0.8.1"
 
 
 // Flag controlling the display of debugging information.
@@ -202,6 +202,7 @@ func NextObject(stream io.Reader) interface{} {
             frame := &MP3Frame{}
 
             if ok := parseHeader(buffer, frame); ok {
+                debug("next object: found frame")
 
                 frame.RawBytes = make([]byte, frame.FrameLength)
                 copy(frame.RawBytes, buffer)
@@ -215,7 +216,7 @@ func NextObject(stream io.Reader) interface{} {
         }
 
         // Nothing found. Shift the buffer forward by one byte and try again.
-        debug("sync error: skipping byte")
+        debug("next object: sync error: skipping byte")
         buffer[0] = buffer[1]
         buffer[1] = buffer[2]
         buffer[2] = buffer[3]
