@@ -105,9 +105,9 @@ func NextFrame(stream io.Reader) *MP3Frame {
         case *MP3Frame:
             return obj
         case *ID3v1Tag:
-            debug("next frame: skipping ID3v1 tag")
+            debug("NextFrame: skipping ID3v1 tag")
         case *ID3v2Tag:
-            debug("next frame: skipping ID3v2 tag")
+            debug("NextFrame: skipping ID3v2 tag")
         case nil:
             return nil
         }
@@ -122,9 +122,9 @@ func NextID3v2Tag(stream io.Reader) *ID3v2Tag {
         obj := NextObject(stream)
         switch obj := obj.(type) {
         case *MP3Frame:
-            debug("next ID3v2 tag: skipping MP3 frame")
+            debug("NextID3v2Tag: skipping MP3 frame")
         case *ID3v1Tag:
-            debug("next ID3v2 tag: skipping ID3v1 tag")
+            debug("NextID3v2Tag: skipping ID3v1 tag")
         case *ID3v2Tag:
             return obj
         case nil:
@@ -202,7 +202,7 @@ func NextObject(stream io.Reader) interface{} {
             frame := &MP3Frame{}
 
             if ok := parseHeader(buffer, frame); ok {
-                debug("next object: found frame")
+                debug("NextObject: found frame")
 
                 frame.RawBytes = make([]byte, frame.FrameLength)
                 copy(frame.RawBytes, buffer)
@@ -216,7 +216,7 @@ func NextObject(stream io.Reader) interface{} {
         }
 
         // Nothing found. Shift the buffer forward by one byte and try again.
-        debug("next object: sync error: skipping byte")
+        debug("NextObject: sync error: skipping byte")
         buffer[0] = buffer[1]
         buffer[1] = buffer[2]
         buffer[2] = buffer[3]
@@ -337,7 +337,8 @@ func parseHeader(header []byte, frame *MP3Frame) bool {
     }
 
     // Calculate the frame length in bytes. There's a lot of confusion online
-    // about how to do this and definitive documentation is hard to find. The
+    // about how to do this and definitive documentation is hard to find as
+    // the official MP3 specification is not publicly available. The
     // basic formula seems to boil down to:
     //
     //     bytes_per_sample = (bit_rate / sampling_rate) / 8
