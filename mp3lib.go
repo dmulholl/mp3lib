@@ -14,7 +14,7 @@ import (
 
 
 // Library version.
-const Version = "0.8.1"
+const Version = "0.9.0"
 
 
 // Flag controlling the display of debugging information.
@@ -419,36 +419,36 @@ func IsVbriHeader(frame *MP3Frame) bool {
 }
 
 
-// NewXingHeader creates an Xing VBR header frame. Frame attributes are copied
-// from the supplied template frame.
-func NewXingHeader(template *MP3Frame, totalFrames, totalBytes uint32) *MP3Frame {
+// NewXingHeader creates a new Xing header frame for a VBR file.
+func NewXingHeader(totalFrames, totalBytes uint32) *MP3Frame {
 
-    // Make a shallow copy of the template frame.
-    xingFrame := *template
-
-    // Make a new zeroed-out data slice.
-    xingFrame.RawBytes = make([]byte, xingFrame.FrameLength)
-
-    // Copy over the frame header.
-    copy(xingFrame.RawBytes, template.RawBytes[:4])
+    // We need a valid MP3 frame to use as a template. The data here is
+    // arbitrary, taken from an MP3 file captured from the wild.
+    frame := &MP3Frame{}
+    frame.RawBytes = make([]byte, 209)
+    frame.RawBytes[0] = 0xFF
+    frame.RawBytes[1] = 0xFB
+    frame.RawBytes[2] = 0x52
+    frame.RawBytes[3] = 0xC0
+    parseHeader(frame.RawBytes[:4], frame)
 
     // Determine the Xing header offset.
-    offset := 4 + getSideInfoSize(template)
+    offset := 4 + getSideInfoSize(frame)
 
     // Write the Xing header ID.
-    copy(xingFrame.RawBytes[offset:offset + 4], []byte("Xing"))
+    copy(frame.RawBytes[offset:offset + 4], []byte("Xing"))
 
     // Write a flag indicating that the number-of-frames and number-of-bytes
     // fields are present.
-    xingFrame.RawBytes[offset + 7] = 3
+    frame.RawBytes[offset + 7] = 3
 
     // Write the number of frames as a 32-bit big endian integer.
-    binary.BigEndian.PutUint32(xingFrame.RawBytes[offset + 8:offset + 12], totalFrames)
+    binary.BigEndian.PutUint32(frame.RawBytes[offset + 8:offset + 12], totalFrames)
 
     // Write the number of bytes as a 32-bit big endian integer.
-    binary.BigEndian.PutUint32(xingFrame.RawBytes[offset + 12:offset + 16], totalBytes)
+    binary.BigEndian.PutUint32(frame.RawBytes[offset + 12:offset + 16], totalBytes)
 
-    return &xingFrame
+    return frame
 }
 
 
