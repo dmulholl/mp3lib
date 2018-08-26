@@ -14,7 +14,7 @@ import (
 
 
 // Library version.
-const Version = "0.9.0"
+const Version = "1.0.0"
 
 
 // Flag controlling the display of debugging information.
